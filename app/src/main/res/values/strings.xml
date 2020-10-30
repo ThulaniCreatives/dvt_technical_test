@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Weather</string>
+    <string name="collable">header</string>
+    <string name="temperature">25°</string>
+    <string name="temp_image">main</string>
+    <string name="textview">19°</string>
+    <string name="current_temp">25°</string>
+    <string name="min">min</string>
+    <string name="current">current</string>
+    <string name="max">max</string>
+    <string name="temp_max">TextView</string>
+    <string name="temp_max1">27°</string>
+    <string name="max_temp">max</string>
+    <string name="temp_desc">SUNNY</string>
+    <string name="updated_at">update_at</string>
+    <string name="weather_source">openweathermap</string>
+    <string name="city">LoadingCity</string>
+    <string name="feel_like">feel</string>
+    <string name="weather_details">weather</string>
+    <string name="floating">floating</string>
+    <string name="todo">TODO</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBPuJwXKOS91jQUgHvgfec4VYG50Hz19iA</string>
+    <string name="fab">fab</string>
+
+
+</resources>

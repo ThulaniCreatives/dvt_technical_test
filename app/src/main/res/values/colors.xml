@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="colorPrimary">#54717a</color>
+  <color name="colorPrimaryDark">#54717a</color>
+  <color name="colorAccent">#c75f00</color>
+
+
+  <color name="gradient_default_start">#4CAF50</color>
+  <color name="gradient_default_end">#1B5E20</color>
+  <color name="gradient_error_start">#FDD835</color>
+  <color name="gradient_error_end">#F57F17</color>
+
+  <color name="light_grey">#E0E0E0</color>
+  <color name="white">#FFFFFF</color>
+  <color name="sunny">#47AB2F</color>
+  <color name="cloudy">#54717A</color>
+  <color name="rainy">#57575D</color>
+  <color name="darkGray">#E8E8E8</color>
+</resources>
