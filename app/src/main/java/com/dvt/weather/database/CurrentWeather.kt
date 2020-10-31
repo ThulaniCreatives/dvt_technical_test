@@ -14,6 +14,7 @@ data class CurrentWeather (
     @ColumnInfo(name = "temperature") val temperature: String,
     @ColumnInfo(name = "temperatureDescription") val temperatureDescription: String,
     @ColumnInfo(name = "weatherIcon") val weatherIcon:Int,
-    @ColumnInfo(name = "feelLike") val feelLike: Long
+    @ColumnInfo(name = "feelLike") val feelLike: Long,
+    @ColumnInfo(name = "updatedAt") val updatedAt: String,
 
 )

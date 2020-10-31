@@ -10,7 +10,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -66,6 +68,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         //hode action bar
         setContentView(R.layout.activity_main)
+
+        //Request permisssion
+        RequestLocationPermission()
         //init items
         val textViewCurrentTemp1: TextView = findViewById(R.id.textViewCurrentTemp1)
         val textViewCurrentTemp2: TextView = findViewById(R.id.textViewCurrentTemp2)
@@ -76,11 +81,9 @@ class MainActivity : AppCompatActivity() {
         val textViewUpdatedAt: TextView = findViewById(R.id.textViewUpdatedAt)
         val textViewCity: TextView = findViewById(R.id.textViewCity)
         val textViewFeel: TextView = findViewById(R.id.textViewFeelLike)
+        val progressBar :ProgressBar = findViewById(R.id.progressBar)
         // initialize FusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        //get current location
-        getLastLocation()
-
 
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.addItemDecoration(DividerItemDecoration(this, RecyclerView.VERTICAL))
@@ -91,6 +94,8 @@ class MainActivity : AppCompatActivity() {
         forecastViewModel = ViewModelProvider(this).get(ForecastViewModel::class.java)
         forecastViewModel.getForecast().observe(this, Observer<List<Forecast>> { forecast ->
             weatherAdapter.setListData(forecast)
+
+
 
 
         })
@@ -112,6 +117,7 @@ class MainActivity : AppCompatActivity() {
                     textViewTempDesc.setText(" ${currentWeather[i].temperature}")
                     textViewFeelLike.setText("Feels like ${currentWeather[i].feelLike}°")
                     temperatureDescription = currentWeather[i].temperature
+                    textViewUpdatedAt.setText("updated ${currentWeather[i].updatedAt}")
                     ImageViewTemp.setImageResource(currentWeather[i].weatherIcon)
                     i++
 
@@ -121,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                 "Sunny" -> R.color.sunny
                 "Rain" -> R.color.rainy
                 "Clear" -> R.color.sunny
-                else -> R.color.design_default_color_primary
+                else -> R.color.white
             }
 
 
@@ -135,10 +141,27 @@ class MainActivity : AppCompatActivity() {
 
             })
         //
+        progressBar.visibility = View.GONE
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener {
             val intent = Intent(this@MainActivity, AddCityActivity::class.java)
             startActivity(intent)
+        }
+
+    }
+
+    private fun RequestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this@MainActivity,
+                        Manifest.permission.ACCESS_FINE_LOCATION) !==
+                PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this@MainActivity,
+                            Manifest.permission.ACCESS_FINE_LOCATION)) {
+                ActivityCompat.requestPermissions(this@MainActivity,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+            } else {
+                ActivityCompat.requestPermissions(this@MainActivity,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+            }
         }
     }
 
@@ -192,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                 tempTitle,
                 tempDesc,
                 resourceId,
-                convertedFeelLike
+                convertedFeelLike,updatedAt
             )
 
         })
@@ -214,7 +237,8 @@ class MainActivity : AppCompatActivity() {
         temp: String,
         tempDesc: String,
         icon: Int,
-        feelLike: Long
+        feelLike: Long,
+        updatedAt: String
     ) {
         val currentWeather = CurrentWeather(
             0,
@@ -225,7 +249,7 @@ class MainActivity : AppCompatActivity() {
             temp,
             tempDesc,
             icon,
-            feelLike
+            feelLike,updatedAt
         )
 
         forecastViewModel.insertCurrent(currentWeather)
@@ -318,43 +342,47 @@ class MainActivity : AppCompatActivity() {
         forecastViewModelApi.cancelJobs()
     }
 
-    fun getLastLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermission()
-        } else {
-            val geocoder = Geocoder(this, Locale.getDefault())
-            var addresses: List<Address>
 
-            fusedLocationProviderClient.lastLocation
-                .addOnSuccessListener { location: Location? ->
-                    mLocation = location
-                    if (location != null) {
-                        current_lat = location.latitude
-                        current_long = location.longitude
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+                                            grantResults: IntArray) {
+        when (requestCode) {
+            1 -> {
+                if (grantResults.isNotEmpty() && grantResults[0] ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    if ((ContextCompat.checkSelfPermission(this@MainActivity,
+                                    Manifest.permission.ACCESS_FINE_LOCATION) ===
+                                    PackageManager.PERMISSION_GRANTED)) {
+                        val geocoder = Geocoder(this, Locale.getDefault())
+                        var addresses: List<Address>
 
-                        addresses = geocoder.getFromLocation(current_lat, current_long, 1)
+                        fusedLocationProviderClient.lastLocation
+                                .addOnSuccessListener { location: Location? ->
+                                    mLocation = location
+                                    if (location != null) {
+                                        current_lat = location.latitude
+                                        current_long = location.longitude
 
-                        val address: String = addresses[0].locality
-                        //Assigning latLong to find current weather
-                        getCurrentWeather(address)
-                        getForecast(address)
+                                        addresses = geocoder.getFromLocation(current_lat, current_long, 1)
 
-                        //
+                                        val address: String = addresses[0].locality
+                                        //Assigning latLong to find current weather
+                                        getCurrentWeather(address)
+                                        getForecast(address)
+
+                                        //
+                                    }
+                                }
+
+                        Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
                     }
-                }
 
+                } else {
+                    fab.hide()
+                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
+                }
+                return
+            }
         }
     }
 
-    private fun requestPermission() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            RequestPermissionCode
-        )
-    }
 }

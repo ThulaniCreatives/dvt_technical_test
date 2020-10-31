@@ -15,7 +15,6 @@
       android:layout_marginTop="4dp"
       android:contentDescription="@string/temp_image"
       android:scaleType="fitXY"
-      android:src="@drawable/forest_sunny"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="0.0"
       app:layout_constraintStart_toStartOf="parent"
@@ -211,6 +210,16 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="1.0"
       app:layout_constraintStart_toEndOf="@+id/textViewUpdatedAt" />
+
+  <ProgressBar
+      android:id="@+id/progressBar"
+      style="?android:attr/progressBarStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
