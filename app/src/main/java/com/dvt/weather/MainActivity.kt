@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         //currentWeather data from Room
         forecastViewModel.getCurrent().observe( this,Observer<List<CurrentWeather>> { currentWeather ->
                 // assigning elements
-                println(currentWeather)
+
                 var total_list = currentWeather.size
                 var i = 0
                 var temperatureDescription: String = ""
