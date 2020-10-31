@@ -126,6 +126,7 @@ class MainActivity : AppCompatActivity() {
                 "Clouds" -> R.color.cloudy //Log.d("Current", "Clouds")
                 "Sunny" -> R.color.sunny
                 "Rain" -> R.color.rainy
+                "Thunderstorm" -> R.color.rainy
                 "Clear" -> R.color.sunny
                 else -> R.color.white
             }
@@ -201,6 +202,7 @@ class MainActivity : AppCompatActivity() {
                 "Sunny" -> R.drawable.forest_sunny
                 "Rain" -> R.drawable.forest_rainy
                 "Clear" -> R.drawable.forest_sunny
+                "Thunderstorm" -> R.drawable.forest_rainy
                 else -> R.drawable.default_list_image
             }
 
@@ -319,6 +321,7 @@ class MainActivity : AppCompatActivity() {
                     "Clear" -> R.drawable.clear
                     "Sunny" -> R.drawable.clear
                     "Rain" -> R.drawable.rain
+                   "Thunderstorm" -> R.color.rainy
                     else -> R.drawable.rain
                 }
                 //------------------
