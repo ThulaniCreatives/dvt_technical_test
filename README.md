@@ -22,6 +22,9 @@ Lastly users are able to add their desired place to view weather.
 # 4  Add Place
 <img src="screenshots/search_place.jpg" width=300  height=500 aligh=center>
 
+# 4  App Demo
+Small video available in the screenshots
+
 
 
 
