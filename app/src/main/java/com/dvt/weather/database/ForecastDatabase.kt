@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
-@Database(version = 4, entities = [Forecast::class, CurrentWeather::class , FavoriteModel::class], exportSchema = false)
+@Database(version = 1, entities = [Forecast::class, CurrentWeather::class , FavoriteModel::class], exportSchema = false)
 abstract class ForecastDatabase : RoomDatabase() {
 
     abstract fun forestDao(): ForecastDao
@@ -63,7 +63,7 @@ abstract class ForecastDatabase : RoomDatabase() {
             synchronized(this) {
                 val instance = Room.databaseBuilder(context.applicationContext,
                     ForecastDatabase::class.java,
-                    "forecast_databases")
+                    "forecast_database")
                     .addCallback(PlayerDatabaseCallback(coroutineScope))
                      .fallbackToDestructiveMigration()
                     .build()

@@ -15,6 +15,7 @@
     <string name="updated_at">update_at</string>
     <string name="weather_source">openweathermap</string>
     <string name="city">-</string>
+    <string name="preference_file_key">shared_place</string>
     <string name="feel_like">feel</string>
     <string name="weather_details">weather</string>
     <string name="floating">floating</string>

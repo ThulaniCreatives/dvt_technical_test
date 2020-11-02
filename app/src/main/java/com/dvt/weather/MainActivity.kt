@@ -1,7 +1,9 @@
 package com.dvt.weather
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -62,15 +64,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     var current_lat: Double = 0.0
     var current_long: Double = 0.0
+    var currentPlace:String=""
+    //SharedPreferences
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //hode action bar
         setContentView(R.layout.activity_main)
+
 
         //Request permisssion
         RequestLocationPermission()
+
         //init items
         val textViewCurrentTemp1: TextView = findViewById(R.id.textViewCurrentTemp1)
         val textViewCurrentTemp2: TextView = findViewById(R.id.textViewCurrentTemp2)
@@ -81,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         val textViewUpdatedAt: TextView = findViewById(R.id.textViewUpdatedAt)
         val textViewCity: TextView = findViewById(R.id.textViewCity)
         val textViewFeel: TextView = findViewById(R.id.textViewFeelLike)
-        val progressBar :ProgressBar = findViewById(R.id.progressBar)
+        val progressBar: ProgressBar = findViewById(R.id.progressBar)
         // initialize FusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -96,33 +103,31 @@ class MainActivity : AppCompatActivity() {
             weatherAdapter.setListData(forecast)
 
 
-
-
         })
         recyclerView.adapter = weatherAdapter
         //currentWeather data from Room
-        forecastViewModel.getCurrent().observe( this,Observer<List<CurrentWeather>> { currentWeather ->
-                // assigning elements
+        forecastViewModel.getCurrent().observe(this, Observer<List<CurrentWeather>> {
+            // assigning elements
 
-                var total_list = currentWeather.size
-                var i = 0
-                var temperatureDescription: String = ""
+            var total_list = it.size
+            var i = 0
+            var temperatureDescription: String = ""
 
-                while (i < total_list) {
-                    textViewCity.setText("${currentWeather[i].place}")
-                    textViewCurrentTemp1.setText("${currentWeather[i].temperature_current} ° ")
-                    textViewCurrentTemp2.setText("${currentWeather[i].temperature_current} ° ")
-                    textViewMaxTemp.setText("${currentWeather[i].temperature_max} ° ")
-                    textViewMinTemp.setText("${currentWeather[i].temperature_min} ° ")
-                    textViewTempDesc.setText(" ${currentWeather[i].temperature}")
-                    textViewFeelLike.setText("Feels like ${currentWeather[i].feelLike}°")
-                    temperatureDescription = currentWeather[i].temperature
-                    textViewUpdatedAt.setText("updated ${currentWeather[i].updatedAt}")
-                    ImageViewTemp.setImageResource(currentWeather[i].weatherIcon)
-                    i++
+            while (i < total_list) {
+                textViewCity.setText("${it[i].place}")
+                textViewCurrentTemp1.setText("${it[i].temperature_current} ° ")
+                textViewCurrentTemp2.setText("${it[i].temperature_current} ° ")
+                textViewMaxTemp.setText("${it[i].temperature_max} ° ")
+                textViewMinTemp.setText("${it[i].temperature_min} ° ")
+                textViewTempDesc.setText(" ${it[i].temperature}")
+                textViewFeelLike.setText("Feels like ${it[i].feelLike}°")
+                temperatureDescription = it[i].temperature
+                textViewUpdatedAt.setText("updated ${it[i].updatedAt}")
+                ImageViewTemp.setImageResource(it[i].weatherIcon)
+                i++
 
-                }
-            val backgroundColorId = when (temperatureDescription ) {
+            }
+            val backgroundColorId = when (temperatureDescription) {
                 "Clouds" -> R.color.cloudy //Log.d("Current", "Clouds")
                 "Sunny" -> R.color.sunny
                 "Rain" -> R.color.rainy
@@ -132,15 +137,15 @@ class MainActivity : AppCompatActivity() {
             }
 
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                     window.statusBarColor = ContextCompat.getColor(this, backgroundColorId)
-                }
-                val mainView = findViewById<View>(R.id.main)
-                mainView.setBackgroundColor(ContextCompat.getColor(this, backgroundColorId))
-                weatherAdapter.notifyDataSetChanged()
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                window.statusBarColor = ContextCompat.getColor(this, backgroundColorId)
+            }
+            val mainView = findViewById<View>(R.id.main)
+            mainView.setBackgroundColor(ContextCompat.getColor(this, backgroundColorId))
+            weatherAdapter.notifyDataSetChanged()
 
 
-            })
+        })
         //
         progressBar.visibility = View.GONE
         val fab = findViewById<FloatingActionButton>(R.id.fab)
@@ -151,7 +156,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun RequestLocationPermission() {
+    private fun RequestLocationPermission(){
         if (ContextCompat.checkSelfPermission(this@MainActivity,
                         Manifest.permission.ACCESS_FINE_LOCATION) !==
                 PackageManager.PERMISSION_GRANTED) {
@@ -173,6 +178,8 @@ class MainActivity : AppCompatActivity() {
         //filter by current location
         viewModel.setCurrentCity(city)
 
+
+
         viewModel.currentWeather.observe(this, Observer { user ->
 
             //---Method 1
@@ -187,12 +194,12 @@ class MainActivity : AppCompatActivity() {
             val convertedTempMax = convertTemperature(user.main.tempMax)
             val convertedTempMin = convertTemperature(user.main.tempMin)
             val convertedFeelLike = convertTemperature(user.main.feelsLike)
-            //convert update at from unix to date time
+            //convert updateAt from unix to date time
             val timestamp = user.dt
             val netDate = Date(timestamp.toLong() * 1000)
             val sdf = SimpleDateFormat("dd/MM/yy hh:mm a")
             val updatedAt = sdf.format(netDate)
-            textViewUpdatedAt.setText("Updated ${updatedAt}")
+            //textViewUpdatedAt.setText("Updated ${updatedAt}")
 
             //change the temp image based on condition and theme color
 
@@ -210,14 +217,14 @@ class MainActivity : AppCompatActivity() {
 
 
             addCurrentData(
-                city,
-                convertedTempMin,
-                convertedTempCurrent,
-                convertedTempMax,
-                tempTitle,
-                tempDesc,
-                resourceId,
-                convertedFeelLike,updatedAt
+                    city,
+                    convertedTempMin,
+                    convertedTempCurrent,
+                    convertedTempMax,
+                    tempTitle,
+                    tempDesc,
+                    resourceId,
+                    convertedFeelLike, updatedAt
             )
 
         })
@@ -232,26 +239,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addCurrentData(
-        place: String,
-        temp_min: Long,
-        temp_current: Long,
-        temp_max: Long,
-        temp: String,
-        tempDesc: String,
-        icon: Int,
-        feelLike: Long,
-        updatedAt: String
+            place: String,
+            temp_min: Long,
+            temp_current: Long,
+            temp_max: Long,
+            temp: String,
+            tempDesc: String,
+            icon: Int,
+            feelLike: Long,
+            updatedAt: String
     ) {
         val currentWeather = CurrentWeather(
-            0,
-            place,
-            temp_min,
-            temp_current,
-            temp_max,
-            temp,
-            tempDesc,
-            icon,
-            feelLike,updatedAt
+                0,
+                place,
+                temp_min,
+                temp_current,
+                temp_max,
+                temp,
+                tempDesc,
+                icon,
+                feelLike, updatedAt
         )
 
         forecastViewModel.insertCurrent(currentWeather)
@@ -259,16 +266,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addForecast(
-        forecastDate: String,
-        temperature: Double,
-        temperatureDescription: String,
-        weatherIcon: Int,
-        timestamp: Int
+            forecastDate: String,
+            temperature: Double,
+            temperatureDescription: String,
+            weatherIcon: Int,
+            timestamp: Int
     ) {
         //init ForecastViewModel room database
 
         val forecastData =
-            Forecast(0, forecastDate, temperature, temperatureDescription, weatherIcon, timestamp)
+                Forecast(0, forecastDate, temperature, temperatureDescription, weatherIcon, timestamp)
         forecastViewModel.insertForecast(forecastData)
         //weatherAdapter.setListData(forecastData)
         //weatherAdapter.notifyDataSetChanged()
@@ -283,55 +290,74 @@ class MainActivity : AppCompatActivity() {
         forecastViewModelApi = ViewModelProvider(this).get(ForecastViewModelApi::class.java)
         forecastViewModelApi.setCurrentCity(city)
 
+
+        //Log.d("currentTime", "getCurrentWeather $updatedAt: $timestamp2")
+
+
         forecastViewModelApi.forecast.observe(this, Observer { user ->
-            Log.d(
-                "thulani",
-                "forecast: ${user}"
-            )
+
             val total_list = user.list.size
-            var i = 5 //select day(tommorrow at twelf) at 12 pm
-
-            user.list.forEach { list ->
-                Log.d(
-                    "thulani",
-                    "forecast: ${list.weather.get(0).main}  desc :  ${list.weather.get(0).description}"
-                )
-            }
-
+            var i = 0 //select day(tommorrow at twelf) at 12 pm
             var tempMax1: Double
             var date1: String
             var timeStamp: Int
             var weatherMain: String
             var weatherDescription: String
             var icon: String
+            //dateTime to unix
+            val currentTime = Calendar.getInstance().time
+            val sdf = SimpleDateFormat("yyyy-MM-dd hh:mm:ss a")
+            val updatedAt = sdf.format(currentTime)
+            val format = SimpleDateFormat("yyyy-MM-dd hh:mm:ss a")
+            val date = format.parse("$updatedAt")
+            val unix_timestamp = date.time / 1000
+
+            //compare dates
+            val currentDate = Calendar.getInstance().time
+            val sdf2 = SimpleDateFormat("yyyy-MM-dd")
+            val convertedDate = sdf2.format(currentDate)
+
+            //time
+            val formatTime = SimpleDateFormat("H")
+            val convertedTime = formatTime.format(currentDate).toInt()
+
 
             while (i < total_list) {
 
-                tempMax1 = user.list.get(i).main.tempMax
                 date1 = user.list.get(i).dtTxt
-                timeStamp = user.list.get(i).dt
-                weatherMain = user.list[i].weather[0].main
-                weatherDescription = user.list[i].weather[0].description
-                icon = user.list[i].weather[0].icon
+                Log.d("time", "getForecast: $convertedTime index=$i  date =   $date1")
+                if (!date1.contains(convertedDate)) {
+                    var selectRecentData = when (convertedTime) {
+                        in 0..3 -> "00:00"
+                        in 3..6 -> "03:00"
+                        in 6..9 -> "06:00"
+                        in 9..12 -> "09:00"
+                        in 12..15 -> "09:00"
+                        in 15..18 -> "12:00"
+                        in 18..21 -> "18:00"
+                        else -> "12:00"
+                    }
+                    if (date1.contains("$selectRecentData")) {
 
-                //------------------
-
-               val resourceId = when (weatherMain) {
-                    "Clouds" -> R.drawable.partlysunny//Log.d("Current", "Clouds")
-                    "Clear" -> R.drawable.clear
-                    "Sunny" -> R.drawable.clear
-                    "Rain" -> R.drawable.rain
-                   "Thunderstorm" -> R.color.rainy
-                    else -> R.drawable.rain
+                        timeStamp = user.list.get(i).dt
+                        tempMax1 = user.list.get(i).main.tempMax
+                        weatherMain = user.list[i].weather[0].main
+                        weatherDescription = user.list[i].weather[0].description
+                        icon = user.list[i].weather[0].icon
+                        Log.d("thulani", "apiTimeStamp:$timeStamp  appTime: $unix_timestamp   Date:$date1 index=$i  temp= $tempMax1")
+                        val resourceId = when (weatherMain) {
+                            "Clouds" -> R.drawable.partlysunny
+                            "Clear" -> R.drawable.clear
+                            "Sunny" -> R.drawable.clear
+                            "Rain" -> R.drawable.rain
+                            "Thunderstorm" -> R.color.rainy
+                            else -> R.drawable.rain
+                        }
+                        addForecast(date1, tempMax1, weatherDescription, resourceId, timeStamp)
+                    }
                 }
-                //------------------
-               // item.add(RecyclerViewModel(date1, resourceId, tempMax1))
-               // weatherAdapter.setListData(user)
-               // weatherAdapter.notifyDataSetChanged()
-                //move to next day at 12PM
-                i += 8
-                addForecast(date1, tempMax1, weatherDescription, resourceId, timeStamp)
 
+                i += 1
             }
 
 
@@ -387,5 +413,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+
 
 }

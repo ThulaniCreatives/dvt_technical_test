@@ -21,7 +21,7 @@ interface ForecastDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertFavorite(favoriteModel: FavoriteModel)
 
-    @Query("SELECT * FROM forecast_table where id!=0 limit 5 ")
+    @Query("SELECT * FROM forecast_table where id in (SELECT id FROM forecast_table ORDER BY id DESC LIMIT 5)")
     fun getAllForecast(): LiveData<List<Forecast>>
 
     @Query("SELECT * FROM favorite_table")
@@ -31,7 +31,7 @@ interface ForecastDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCurrentWeather(current: CurrentWeather)
 
-    @Query("SELECT * FROM current_table")
+    @Query("SELECT * FROM current_table order by id desc limit 1")
     fun getCurrent(): LiveData<List<CurrentWeather>>
 
     @Query(" DELETE FROM forecast_table")
